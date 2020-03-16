@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style>
+		        *{
+		            padding: 0;
+		            margin: 0
+		        }
+		       #myCanvas{
+		           margin: 20px auto;
+		           display: block; 
+		           border: 1px solid rebeccapurple
+		       }
+		</style>
+	</head>
+	<body>
+		<canvas id="myCanvas" width="600" height="600"></canvas>
+		<script>
+			var canvas = document.getElementById('myCanvas')
+			var context = canvas.getContext('2d')
+			var clientW = canvas.clientWidth
+			var clientH= canvas.clientHeight
+			
+			
+			/*
+			    球在x，y方向都有速度 
+			
+			    确定 小球类 包含 x,y坐标，同时包含 sx,sy速度
+			
+			    sy方向的速度是 越来越大， sx速度固定，取值是 -2，2之间
+			
+			    init
+			    render 
+			    update
+			    
+			*/
+		   function getRandomColor(){
+			   return `rgb(${Math.round(Math.random() * 255)},${Math.round(Math.random() * 255)},${Math.round(Math.random() * 255)})`
+		   }
+		   var bubble = []
+			class Bubble{
+				constructor(context,x,y) {
+				    this.context=context
+					this.x=x
+					this.y=y
+					this.sx=0
+					this.sy=0
+					this.g=0.1
+					this.color='pink'
+					this.init()
+				}
+				init(){
+					this.sx=Math.random()*4-2
+					this.sy=Math.random()*2-10
+					this.color=getRandomColor()
+					// console.log(this.color)
+				}
+				render(){
+					this.context.beginPath()
+					this.context.fillStyle=this.color
+					this.context.arc(this.x, this.y, 8, 0, 2 * Math.PI, false)
+					this.context.fill()
+				}
+				update(){
+					this.sy = this.sy+this.g
+					this.x += this.sx
+					this.y += this.sy
+					this.render()
+				}
+			}
+			
+			//节流函数
+			function throttle(fn, gapTime) {
+				let _lastTime = null;
+				return function() {
+					var that = this;
+					var args = arguments;
+					let _nowTime = +new Date();
+					if (_nowTime - _lastTime > gapTime || !_lastTime) {
+						fn.apply(that, args);
+						_lastTime = _nowTime;
+					}
+				}
+			}
+			
+			function creatBull(){
+				var b = new Bubble(context,clientW/2,clientH-20)
+				bubble.push(b)
+			}
+			
+			var creatB = throttle(creatBull,200)
+			
+			var updata = setInterval(function(){
+				context.clearRect(0,0,clientW,clientH)
+				creatB()
+				for(var i=0;i<bubble.length;i++){
+					bubble[i].update()
+				}
+				if(bubble.length>200){
+					bubble.shift()
+				}
+			},20)
+			
+			
+		</script>
+	</body>
+</html>
